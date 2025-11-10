@@ -15,12 +15,10 @@ namespace ContactAPI.Controllers
     [ApiController]
     public class GroupsController : ControllerBase
     {
-        private readonly ExamDbContext _context;
         private readonly IGroupService _service;
 
-        public GroupsController(ExamDbContext context, IGroupService service)
+        public GroupsController( IGroupService service)
         {
-            _context = context;
             _service = service;
         }
 
@@ -32,50 +30,6 @@ namespace ContactAPI.Controllers
             return Ok(res);
         }
 
-        // GET: api/Groups/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Group>> GetGroup(int id)
-        {
-            var @group = await _context.Groups.FindAsync(id);
-
-            if (@group == null)
-            {
-                return NotFound();
-            }
-
-            return @group;
-        }
-
-        // PUT: api/Groups/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutGroup(int id, Group @group)
-        {
-            if (id != @group.Id)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(@group).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!GroupExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
-        }
 
         // POST: api/Groups
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
@@ -86,31 +40,12 @@ namespace ContactAPI.Controllers
             return Ok();
         }
 
-        //[HttpPost("add-to-group")]
-        //public async Task<IActionResult> AddContactToGroup([FromBody] int ContactId , [FromBody] int GroupId)
-        //{
-        //    return Ok();
-        //}
-
-        // DELETE: api/Groups/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteGroup(int id)
+        [HttpPost("add-to-group")]
+        public async Task<IActionResult> AddContactToGroup(int ContactId, int GroupId)
         {
-            var @group = await _context.Groups.FindAsync(id);
-            if (@group == null)
-            {
-                return NotFound();
-            }
-
-            _context.Groups.Remove(@group);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+            var res = _service.AddContactToGroup(ContactId, GroupId);
+            return Created(String.Empty, res);
         }
 
-        private bool GroupExists(int id)
-        {
-            return _context.Groups.Any(e => e.Id == id);
-        }
     }
 }

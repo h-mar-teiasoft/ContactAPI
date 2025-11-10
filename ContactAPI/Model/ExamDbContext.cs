@@ -50,6 +50,9 @@ public partial class ExamDbContext : DbContext
             entity.Property(e => e.Phone)
                 .HasMaxLength(15)
                 .HasColumnName("phone");
+            entity.HasMany(c => c.Groups)
+            .WithMany(g => g.Contacts)
+            .UsingEntity(j => j.ToTable("groups_contact"));
         });
 
         modelBuilder.Entity<Group>(entity =>

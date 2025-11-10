@@ -17,18 +17,22 @@ namespace ContactAPI.Services
 
         public async Task AddContactToGroup(int ContactId, int GroupId)
         {
-            var contact = await _context.Contacts.FindAsync(ContactId);
-            var group = await _context.Groups.FindAsync(GroupId);
+            var contact = await _context.Contacts
+                .Include( c => c.Groups)
+                .FirstOrDefaultAsync(c =>  c.Id == ContactId);
 
-            var link = new GroupsContact
+            var _group = await _context.Groups.FindAsync(GroupId);
+
+            if (contact == null || _group == null)
             {
-                ContactId = ContactId,
-                GroupId = GroupId,
-            };
+                throw new InvalidOperationException("Contact or group not fount");
+            }
 
-            _context.Set<GroupsContact>().Add(link);
-            await _context.SaveChangesAsync();
-
+            if (!contact.Groups.Contains(_group))
+            {
+                contact.Groups.Add(_group);
+                await _context.SaveChangesAsync();
+            }
             
         }
 
